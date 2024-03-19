@@ -6,4 +6,4 @@ It is built with React Native and uses the Expo framework.
 
 ## Example Usage
 
-![](todoapp.gif)
+<img src="todoapp.gif" width = "200">
