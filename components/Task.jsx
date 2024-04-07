@@ -8,7 +8,7 @@ const Task = ({ index, text, checked, onPress, onPressDelete }) => {
   const onTaskPress = () => {
     // If the task is not checked, check it off
     if (!checked) {
-      onPress(index)
+      onPress(index, text)
     }
   }
 

@@ -17,37 +17,44 @@ export default function App() {
       });
       const data = await res.json();
       setItems(data);
-    }
- 
+    } 
+  
     addTask(task);
   }
 
-  const onTaskPress = (index) => {
+  const onTaskPress = (index, text) => {
+    // need to find someway to get the thing
+    // console.log("Text from Task compoennt: " + text)
     // change so we are calling the backend to check off the task then in the backend push it to the back
-    const checkTask = async (t) => {
+    const checkTask = async () => {
       const res = await fetch(`http://localhost:6968/api/tasks/${index}`, {
         method: "PUT",
         headers: { "Content-type": "Application/json"},
-        body: JSON.stringify({newTitle: t.title,taskName: t.text}), // why do we need to stringify here?
+        body: JSON.stringify({newTitle: text, updateCheck: true}), // why do we need to stringify here?
       });
       const data = await res.json();
       setItems(data);
     }
  
-    addTask(task);
-    
-    const newItems = [...items]
-    newItems[index].isChecked = !newItems[index].isChecked
-    newItems.push(newItems.splice(index, 1)[0]);
-    setItems(newItems)
+    checkTask();
   }
 
  const onDeleteTaskPress = (index) => {
-    // Change so we are calling the backend to delete the task
-    // Change local items and backend 
-    const newItems = [...items]
-    newItems.splice(index, 1)
-    setItems(newItems) 
+    const deleteTask = async () => {
+      const res = await fetch(`http://localhost:6968/api/tasks/${index}`, {
+        method: "DELETE",
+        headers: { "Content-type": "Application/json"},
+      });
+      const data = await res.json();
+      setItems(data);
+    }
+
+    deleteTask();
+    // // Change so we are calling the backend to delete the task
+    // // Change local items and backend 
+    // const newItems = [...items]
+    // newItems.splice(index, 1)
+    // setItems(newItems) 
   }
 
   useEffect(() => {
@@ -73,7 +80,7 @@ export default function App() {
         index = {index}
         text = {item.title} 
         checked = {item.isChecked}
-        onPress = {() => onTaskPress(index)}
+        onPress = {() => onTaskPress(index, item.title)}
         onPressDelete = {() => onDeleteTaskPress(index)}
       />
     )
