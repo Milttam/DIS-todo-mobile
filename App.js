@@ -6,48 +6,64 @@ import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function App() {
-  const [items, setItems] = useState(
-    [{text:"Walk the dog", isChecked:false}, 
-    {text:"Take out the trash", isChecked:false}
-  ])
+  const [items, setItems] = useState([])
 
   const onAddTaskPress = (task) => {
-    setItems([...items, task])
-
-    // UPDATE ASYNC STORAGE
-    try {
-      AsyncStorage.setItem('tasks', JSON.stringify(items))
-    } catch (e) {
-      console.log(e)
+    const addTask = async (t) => {
+      const res = await fetch(`http://localhost:6968/api/tasks`, {
+        method: "POST",
+        headers: { "Content-type": "Application/json"},
+        body: JSON.stringify({taskName: t.text}), // why do we need to stringify here?
+      });
+      const data = await res.json();
+      setItems(data);
     }
+ 
+    addTask(task);
   }
 
   const onTaskPress = (index) => {
+    // change so we are calling the backend to check off the task then in the backend push it to the back
+    const checkTask = async (t) => {
+      const res = await fetch(`http://localhost:6968/api/tasks/${index}`, {
+        method: "PUT",
+        headers: { "Content-type": "Application/json"},
+        body: JSON.stringify({newTitle: t.title,taskName: t.text}), // why do we need to stringify here?
+      });
+      const data = await res.json();
+      setItems(data);
+    }
+ 
+    addTask(task);
+    
     const newItems = [...items]
     newItems[index].isChecked = !newItems[index].isChecked
     newItems.push(newItems.splice(index, 1)[0]);
     setItems(newItems)
-  
   }
 
  const onDeleteTaskPress = (index) => {
+    // Change so we are calling the backend to delete the task
+    // Change local items and backend 
     const newItems = [...items]
     newItems.splice(index, 1)
-    setItems(newItems)
+    setItems(newItems) 
   }
 
   useEffect(() => {
-    const loadTasks = async () => {
-      try{
-        const storedTasks = await AsyncStorage.getItem('tasks')
-        if (storedTasks != null){
-          await AsyncStorage.setItem('tasks', JSON.stringify(items))
-        }
-      } catch(e){
-        console.log(e)
-      }
+    // Need to change so we fetch the tasks from backend, not async storage
+    const getData = async () => {
+      const res = await fetch(`http://localhost:6968/api/`, {
+        method: "GET",
+      });
+      const data = await res.json();
+      console.log(data)
+      setItems(data);
     }
-    loadTasks()
+
+    getData()
+    console.log("reached here!")
+    console.log(items)
   }, [])
 
   const renderItem = ({item, index}) => {
@@ -55,7 +71,7 @@ export default function App() {
       <Task 
         key = {index}
         index = {index}
-        text = {item.text} 
+        text = {item.title} 
         checked = {item.isChecked}
         onPress = {() => onTaskPress(index)}
         onPressDelete = {() => onDeleteTaskPress(index)}
