@@ -9,11 +9,11 @@ export default function App() {
   const [items, setItems] = useState([])
 
   const onAddTaskPress = (task) => {
-    const addTask = async (t) => {
+    const addTask = async () => {
       const res = await fetch(`http://localhost:6968/api/tasks`, {
         method: "POST",
         headers: { "Content-type": "Application/json"},
-        body: JSON.stringify({taskName: t.text}), // why do we need to stringify here?
+        body: JSON.stringify({taskName: task.text}), // why do we need to stringify here?
       });
       const data = await res.json();
       setItems(data);
@@ -24,7 +24,6 @@ export default function App() {
 
   const onTaskPress = (index, text) => {
     // need to find someway to get the thing
-    // console.log("Text from Task compoennt: " + text)
     // change so we are calling the backend to check off the task then in the backend push it to the back
     const checkTask = async () => {
       const res = await fetch(`http://localhost:6968/api/tasks/${index}`, {
@@ -50,11 +49,6 @@ export default function App() {
     }
 
     deleteTask();
-    // // Change so we are calling the backend to delete the task
-    // // Change local items and backend 
-    // const newItems = [...items]
-    // newItems.splice(index, 1)
-    // setItems(newItems) 
   }
 
   useEffect(() => {
@@ -64,13 +58,10 @@ export default function App() {
         method: "GET",
       });
       const data = await res.json();
-      console.log(data)
       setItems(data);
     }
 
     getData()
-    console.log("reached here!")
-    console.log(items)
   }, [])
 
   const renderItem = ({item, index}) => {
